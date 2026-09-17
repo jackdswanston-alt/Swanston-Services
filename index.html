@@ -25,8 +25,7 @@
 <meta name="twitter:description" content="We clear the back of your property. Free quotes, booking now.">
 <meta name="twitter:image" content="https://swanstonservices.com/og-image.jpg">
 <link rel="canonical" href="https://swanstonservices.com/">
-<link rel="preload" as="image" href="/hero-clearing.jpg" media="(min-width:901px)" fetchpriority="high">
-<link rel="preload" as="image" href="/hero-clearing-sm.jpg" media="(max-width:900px)" fetchpriority="high">
+<link rel="preload" as="image" href="/clearing-before.jpg" fetchpriority="high">
 <title>Swanston Services | Land Clearing, Brush &amp; Tree Removal</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -102,34 +101,21 @@
   .btn:focus-visible{outline:2px solid #E0913A;outline-offset:2px;}
 
   /* ---------- hero ---------- */
-  .hero{
-    position:relative;overflow:hidden;
-    background-color:var(--navy-deep);
-    /* two scrims over the photo: a left-anchored wash that guarantees text
-       contrast, plus a flat base so the right-hand photo stays moody.
-       Measured worst-case: label 7.0:1, headline 8.1:1. Don't lighten these. */
-    background-image:
-      linear-gradient(97deg,
-        rgba(8,18,25,.90) 0%,
-        rgba(8,18,25,.86) 44%,
-        rgba(8,18,25,.42) 70%,
-        rgba(8,18,25,0) 90%),
-      linear-gradient(rgba(8,18,25,.40),rgba(8,18,25,.40)),
-      url("/hero-clearing.jpg");
-    background-repeat:no-repeat,no-repeat,no-repeat;
-    background-size:cover,cover,cover;
-    background-position:center,center,center 55%;
-  }
-  /* deepens the busy bottom edge so the hero meets the next section cleanly */
-  .hero::after{
-    content:"";position:absolute;inset:auto 0 0 0;height:130px;z-index:1;pointer-events:none;
-    background:linear-gradient(to bottom,rgba(8,18,25,0),rgba(8,18,25,.8));
-  }
-  .hero-in{position:relative;z-index:2;padding:104px 0 96px;max-width:720px;}
+  .hero{position:relative;background:var(--navy-deep);overflow:hidden;}
+  .hero-in{position:relative;z-index:2;padding:84px 0 74px;max-width:720px;}
   .hero .label{color:#E0913A;margin-bottom:18px;}
   .hero h1{font-size:clamp(52px,10vw,104px);color:#fff;letter-spacing:-.005em;}
   .hero p{color:#C7D8E2;font-size:19px;margin:22px 0 0;max-width:48ch;}
   .hero-cta{display:flex;gap:12px;flex-wrap:wrap;margin-top:30px;}
+
+  /* ---------- before / after band ---------- */
+  .proof{display:grid;grid-template-columns:1fr 1fr;gap:3px;background:var(--navy-deep);}
+  .proof figure{margin:0;position:relative;overflow:hidden;}
+  .proof img{display:block;width:100%;height:100%;object-fit:cover;aspect-ratio:4/3;}
+  @media (max-width:700px){
+    .proof{grid-template-columns:1fr;gap:3px;}
+    .proof img{aspect-ratio:4/3;}
+  }
 
   /* ---------- sections ---------- */
   section{padding:72px 0;}
@@ -286,25 +272,12 @@
     box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.45);}
   .hdr-call:hover{box-shadow:inset 0 0 0 1.5px #fff;}
   .hdr-call:focus-visible{outline:2px solid #E0913A;outline-offset:2px;}
-  /* below ~900px the text spans most of the width, so the angled wash no
-     longer sits behind it — go flat and strong instead. */
-  @media (max-width:900px){
-    .hero{
-      background-image:
-        linear-gradient(rgba(8,18,25,.90),rgba(8,18,25,.90)),
-        url("/hero-clearing-sm.jpg");
-      background-repeat:no-repeat,no-repeat;
-      background-size:cover,cover;
-      background-position:center,62% 56%;
-    }
-  }
-
   @media (max-width:620px){
     .hdr-tel{display:none;}
     .hdr-call{display:flex;}
     .hdr-right{gap:8px;}
     .btn{padding:11px 14px;font-size:14px;}
-    .hero-in{padding:64px 0 58px;}
+    .hero-in{padding:52px 0 48px;}
     section{padding:54px 0;}
   }
 </style>
@@ -336,6 +309,17 @@
       </div>
     </div>
   </div>
+</div>
+
+<div class="proof">
+  <figure>
+    <img src="/clearing-before.jpg" width="768" height="576" fetchpriority="high" decoding="async"
+         alt="Overgrown brush, saplings and briars filling the strip between a back fence and the treeline.">
+  </figure>
+  <figure>
+    <img src="/clearing-after.jpg" width="768" height="576" decoding="async"
+         alt="The same strip after clearing: open ground along the fence, brush and saplings cut out and hauled off.">
+  </figure>
 </div>
 
 <section id="services">
