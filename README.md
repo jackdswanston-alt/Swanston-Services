@@ -76,5 +76,8 @@ Anything left in there is a submission that never reached us.
   before the network and shows a decoy confirmation.
 - Colour tokens were chosen to hit WCAG AA. `--blaze` (#A65E0C) is 4.97:1 with
   white and `--line` is 3.35:1 against the form. Lightening either breaks AA.
-- `og-image.jpg` is referenced but not yet created — add a 1200x630 photo next
-  to index.html or social shares fall back to text only.
+- `og-image.jpg` exists now (1200x630, same job photo as the hero), so social
+  shares render a card instead of bare text.
+- The hero background is `hero-clearing.jpg`, preloaded in the head as the LCP
+  image. If you swap the photo, re-check the scrim: the text sits on top of it
+  and the orange "Now booking fall" label is the first thing to fail contrast.

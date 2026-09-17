@@ -107,7 +107,14 @@ These look like oddities. They are all deliberate and most were bugs once.
   native ones can't be themed. Escape, arrows, type-ahead, `aria-activedescendant`
   and focus return are all wired. If you touch it, re-test all of those
 - **Anchor links offset 72px** so the sticky header doesn't cover section tops
-- **No photos on the site.** He removed them all deliberately. Don't add stock
+- **One photo only: the hero background.** He removed every other image
+  deliberately — no stock, no before/after grid. The hero photo is the cleared
+  half of one of his own jobs; the matching "before" half was cut out because
+  without its label the split read as a rendering seam
+- **The hero scrims are contrast-critical.** Two stacked gradients over
+  `hero-clearing.jpg`: a left-anchored wash plus a flat base. Measured against
+  actual glyph rects, worst case is 6.5:1 on the orange label and 9.5:1 on the
+  headline. Lightening either one drops the label below AA
 
 ---
 
