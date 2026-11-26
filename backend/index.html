@@ -1,0 +1,994 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>Swanston Ops</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Big+Shoulders+Display:wght@700;800;900&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="./app.css">
+<style>
+  .gate{position:fixed;inset:0;z-index:200;background:var(--paper);
+    display:flex;align-items:center;justify-content:center;padding:22px;}
+  .gate[hidden]{display:none;}
+  .gbox{width:min(380px,100%);border:1px solid var(--line);background:var(--surface);}
+  .gbox .gh{background:var(--paper);border-bottom:3px solid var(--blaze);padding:20px 22px 16px;}
+  .gbox .gh .n{font-family:BigShoulders,var(--display);font-weight:800;font-size:30pt;
+    line-height:.85;color:var(--ink);}
+  .gbox .gh .s{font-family:var(--mono);font-size:9.5px;letter-spacing:.26em;
+    text-transform:uppercase;color:var(--blaze);margin-top:7px;}
+  .gbody{padding:20px 22px 22px;display:grid;gap:13px;}
+  .gbody label{font-family:var(--mono);font-size:10px;letter-spacing:.1em;
+    text-transform:uppercase;color:var(--dim);display:block;margin-bottom:4px;}
+  .gbody input{font-family:var(--body);font-size:16px;padding:10px;width:100%;
+    border:1px solid var(--line);background:var(--paper);color:var(--text);border-radius:2px;}
+  .gmsg{font-size:13.5px;color:var(--flag);min-height:1.1em;}
+  .gnote{font-size:12.5px;color:var(--dim);line-height:1.5;}
+  #appWrap[hidden]{display:none;}
+</style>
+</head>
+<body>
+
+<div class="gate" id="gate">
+  <div class="gbox">
+    <div class="gh">
+      <div class="n">SWANSTON</div>
+      <div class="s">Operations</div>
+    </div>
+    <form class="gbody" id="loginForm" autocomplete="on">
+      <div>
+        <label for="gEmail">Email</label>
+        <input id="gEmail" type="email" required autocomplete="username" inputmode="email">
+      </div>
+      <div>
+        <label for="gPass">Password</label>
+        <input id="gPass" type="password" required autocomplete="current-password">
+      </div>
+      <button class="act" id="gGo" type="submit">Sign in</button>
+      <button type="button" id="gReset"
+        style="background:transparent;border:0;padding:4px 0;cursor:pointer;
+               font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;
+               text-transform:uppercase;color:var(--dim);text-align:left;">
+        Forgot your password?</button>
+      <p class="gmsg" id="gMsg"></p>
+      <p class="gnote">Crew: use the login Jack set up for you. Everything you send
+        here goes to him to approve.</p>
+    </form>
+  </div>
+</div>
+
+<div id="appWrap" hidden>
+<header class="top">
+  <div class="top-in">
+    <p class="sub" style="color:var(--blaze)">Swanston Services</p>
+    <h1>Operations</h1>
+  </div>
+</header>
+
+<div class="navwrap">
+  <nav class="nav" role="tablist" aria-label="Sections">
+    <button type="button" role="tab" data-tab="today"    aria-selected="true">Today</button>
+    <button type="button" role="tab" data-tab="quote"    aria-selected="false">Quote</button>
+    <button type="button" role="tab" data-tab="jobs"     aria-selected="false">Jobs</button>
+    <button type="button" role="tab" data-tab="invoices" aria-selected="false">Invoices</button>
+    <button type="button" role="tab" data-tab="expenses" aria-selected="false">Expenses</button>
+    <button type="button" role="tab" data-tab="crew"     aria-selected="false">Crew</button>
+    <button type="button" role="tab" data-tab="books"    aria-selected="false">Books</button>
+    <button type="button" role="tab" data-tab="inbox"    aria-selected="false" hidden>Inbox</button>
+    <button type="button" role="tab" data-tab="setup"    aria-selected="false">Setup</button>
+    <button type="button" class="signout" id="signOutOwner">Sign out</button>
+  </nav>
+</div>
+
+<!-- ============ TODAY ============ -->
+<section class="page" data-page="today">
+  <div class="phead">
+    <h2>Where things stand</h2>
+    <span class="note" id="todayWhen"></span>
+  </div>
+  <div class="tiles" id="todayTiles"></div>
+
+  <div class="tbl">
+    <div class="bar"><span>Money owed to you</span><span id="owedCount"></span></div>
+    <div class="scroll"><table>
+      <thead><tr><th>Invoice</th><th>Customer</th><th>Issued</th><th>Due</th><th class="num">Amount</th><th></th></tr></thead>
+      <tbody id="owedRows"></tbody>
+    </table></div>
+  </div>
+
+  <div class="tbl">
+    <div class="bar"><span>Jobs not invoiced yet</span><span id="uninvCount"></span></div>
+    <div class="scroll"><table>
+      <thead><tr><th>Job</th><th>Customer</th><th>Date</th><th class="num">Price</th><th></th></tr></thead>
+      <tbody id="uninvRows"></tbody>
+    </table></div>
+  </div>
+
+  <div class="tbl">
+    <div class="bar"><span>Money due to crew</span><span id="owedCrewCount"></span></div>
+    <div class="scroll"><table>
+      <thead><tr>
+        <th>Who</th><th class="num">Hours</th><th class="num">Labour</th>
+        <th class="num">Out of pocket</th><th class="num">Total due</th><th></th>
+      </tr></thead>
+      <tbody id="owedCrewRows"></tbody>
+    </table></div>
+  </div>
+
+  <div id="todayFlags"></div>
+</section>
+
+<!-- ============ QUOTE ============ -->
+<section class="page wrap" data-page="quote" hidden>
+  <div class="phead">
+    <h2>Build a quote</h2>
+    <span class="note">Saves to Jobs when you keep it</span>
+  </div>
+  <div class="panel ai" id="aiPanel">
+    <div class="bar">Read the job</div>
+    <div class="ai-body">
+      <div class="drop" id="drop">
+        <input id="photos" type="file" accept="image/*" multiple aria-label="Add photos of the job">
+        <span id="dropTxt">Add photos of the strip</span>
+        <span class="hint" id="dropHint">Tap to pick, drop them here, or paste</span>
+      </div>
+      <div class="thumbs" id="thumbs"></div>
+      <textarea id="brief" placeholder="What the customer wants, in their words or yours. Anything you know — how long the run is, what is back there, whether they want it hauled, how far the dump is."></textarea>
+      <div class="act-row" style="padding:0;display:flex;gap:9px;align-items:center;flex-wrap:wrap;">
+        <button class="act" id="readJob" type="button">Read it and fill the form</button>
+        <button class="act ghost" id="stopJob" type="button" hidden>Stop</button>
+        <span class="status" id="aiStatus"></span>
+      </div>
+      <div class="ai-out" id="aiOut" hidden></div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="bar">The job</div>
+    <div class="fields">
+      <div class="f">
+        <label for="len">Fence line (ft)</label>
+        <input id="len" type="number" inputmode="decimal" min="0" step="5" placeholder="ft">
+      </div>
+      <div class="f">
+        <label for="dens">Density</label>
+        <select id="dens">
+          <option value="" selected>—</option>
+          <option value="light">Light — weeds, saplings under 1"</option>
+          <option value="medium">Medium — brush 1–3", briars</option>
+          <option value="heavy">Heavy — dense 3–6", tangled</option>
+          <option value="cedar">Cedar-choked</option>
+        </select>
+      </div>
+      <div class="f">
+        <label for="access">Access</label>
+        <select id="access">
+          <option value="" selected>—</option>
+          <option value="1">Normal</option>
+          <option value="1.35">Extreme — long carry or no way in</option>
+        </select>
+        <span class="hint">Only extreme changes the price</span>
+      </div>
+      <div class="f">
+        <label for="terrain">Terrain</label>
+        <select id="terrain">
+          <option value="" selected>—</option>
+          <option value="1">Flat</option>
+          <option value="1.15">Uneven, rock</option>
+          <option value="1.35">Steep or drainage</option>
+        </select>
+      </div>
+      <div class="f">
+        <label for="trees">Trees over 6"</label>
+        <input id="trees" type="number" inputmode="numeric" min="0" step="1" placeholder="0">
+      </div>
+      <div class="f">
+        <label for="crew">Crew size</label>
+        <input id="crew" type="number" inputmode="numeric" min="1" max="6" step="1" value="1">
+      </div>
+      <div class="f">
+        <label for="haulAny">Hauling anything?</label>
+        <select id="haulAny">
+          <option value="" selected>—</option>
+          <option value="1">Yes — we haul</option>
+          <option value="0">No — nothing leaves</option>
+        </select>
+      </div>
+      <div class="f" id="haulPctField">
+        <label for="haulPct">How much of the job needs hauling</label>
+        <input id="haulPct" type="range" min="5" max="100" step="5" value="100">
+        <span class="hint" id="haulPctOut">100% of the job</span>
+      </div>
+      <div class="f">
+        <label for="site">Dump site</label>
+        <select id="site">
+          <option value="" selected>—</option>
+          <option value="driftwood">Driftwood — $30/yd³</option>
+          <option value="creedmoor">Creedmoor — $10/yd³</option>
+          <option value="georgetown">Georgetown — $8.25/yd³</option>
+          <option value="beecave">Bee Cave — $15/yd³</option>
+          <option value="hornsby">Hornsby — $9.80/yd³</option>
+        </select>
+      </div>
+      <div class="f">
+        <label for="roundtrip">Round trip (min)</label>
+        <input id="roundtrip" type="number" inputmode="numeric" min="0" step="5" placeholder="min">
+      </div>
+      <div class="f">
+        <label for="crewpay">Crew pay ($)</label>
+        <input id="crewpay" type="number" inputmode="decimal" min="0" step="25" placeholder="auto">
+        <span class="hint">Blank = suggested</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="opts" id="opts" role="group" aria-label="Clearing depth options"></div>
+
+  <div class="bd">
+    <div class="bar"><span id="bdTitle">Breakdown</span><span id="bdSize"></span></div>
+    <div class="rows" id="rows"></div>
+    <div class="warn" id="warn" hidden></div>
+  </div>
+
+
+  <div class="sheet">
+    <div class="bar">Quote sheet for the customer</div>
+    <div class="fields">
+      <div class="f">
+        <label for="custName">Customer name</label>
+        <input id="custName" type="text" autocomplete="off" placeholder="Jamie">
+      </div>
+      <div class="f">
+        <label for="custAddr">Property</label>
+        <input id="custAddr" type="text" autocomplete="off" placeholder="Reunion Ranch">
+      </div>
+      <div class="f">
+        <label for="finalPrice">Final price ($)</label>
+        <input id="finalPrice" type="number" inputmode="decimal" min="0" step="25" placeholder="auto">
+        <span class="hint">Blank = the calculated price</span>
+      </div>
+      <div class="f">
+        <label for="discLabel">Reason for the reduction</label>
+        <input id="discLabel" type="text" autocomplete="off" placeholder="leave blank — no reason printed">
+        <span class="hint">Blank = the PDF just shows the lower price, no explanation</span>
+      </div>
+      <label class="chk"><input id="allDepths" type="checkbox">
+        Put all three depths on the quote, with the full working behind each price</label>
+    </div>
+    <p class="finalnote" id="finalNote"></p>
+    <p class="finalnote" id="allNote" hidden></p>
+    <div class="act-row">
+      <button class="act" id="mkpdf" type="button">Create PDF quote</button>
+      <button class="act ghost" id="keepJob" type="button">Keep it as a job</button>
+      <span class="status" id="pdfStatus"></span>
+      <span class="status" id="keepStatus"></span>
+    </div>
+  </div>
+
+  <details class="rates" id="cust">
+    <summary>Customize</summary>
+    <div class="ctabs" role="tablist">
+      <button class="ctab" type="button" role="tab" data-t="rates" aria-selected="true">Rates</button>
+      <button class="ctab" type="button" role="tab" data-t="work" aria-selected="false">Work</button>
+      <button class="ctab" type="button" role="tab" data-t="dens" aria-selected="false">Density</button>
+      <button class="ctab" type="button" role="tab" data-t="sites" aria-selected="false">Dump sites</button>
+      <button class="ctab" type="button" role="tab" data-t="doc" aria-selected="false">Quote PDF</button>
+    </div>
+
+    <div class="cpane" data-p="rates">
+      <div class="fields">
+        <div class="f"><label for="r_crewrate">Crew rate ($/man-hr)</label>
+          <input id="r_crewrate" type="number" inputmode="decimal" min="0" step="1" value="28"></div>
+        <div class="f"><label for="r_crewmin">Crew minimum ($)</label>
+          <input id="r_crewmin" type="number" inputmode="decimal" min="0" step="25" value="250"></div>
+        <div class="f"><label for="r_crewfloor">Warn below ($/man-hr)</label>
+          <input id="r_crewfloor" type="number" inputmode="decimal" min="0" step="1" value="20"></div>
+        <div class="f"><label for="r_you">Your hour ($)</label>
+          <input id="r_you" type="number" inputmode="decimal" min="0" step="1" value="45"></div>
+        <div class="f"><label for="r_mgmt">Mgmt hrs / job</label>
+          <input id="r_mgmt" type="number" inputmode="decimal" min="0" step="0.5" value="3"></div>
+        <div class="f"><label for="r_superv">Superv. hrs / day</label>
+          <input id="r_superv" type="number" inputmode="decimal" min="0" step="0.5" value="1.5"></div>
+        <div class="f"><label for="r_truck">Truck + trailer ($/day)</label>
+          <input id="r_truck" type="number" inputmode="decimal" min="0" step="5" value="65"></div>
+        <div class="f"><label for="r_saw">Saws + consumables ($/day)</label>
+          <input id="r_saw" type="number" inputmode="decimal" min="0" step="5" value="35"></div>
+        <div class="f"><label for="r_mob">Mobilization ($)</label>
+          <input id="r_mob" type="number" inputmode="decimal" min="0" step="10" value="120"></div>
+        <div class="f"><label for="r_margin">Margin (%)</label>
+          <input id="r_margin" type="number" inputmode="decimal" min="0" max="79" step="1" value="40"></div>
+        <div class="f"><label for="r_min">Minimum job ($)</label>
+          <input id="r_min" type="number" inputmode="decimal" min="0" step="25" value="450"></div>
+        <div class="f"><label for="r_tree">Per tree ($)</label>
+          <input id="r_tree" type="number" inputmode="decimal" min="0" step="10" value="85"></div>
+      </div>
+    </div>
+
+    <div class="cpane" data-p="work" hidden>
+      <div class="fields">
+        <div class="f"><label for="c_d1">Depth option 1 (ft)</label>
+          <input id="c_d1" type="number" inputmode="numeric" min="1" step="1" value="6"></div>
+        <div class="f"><label for="c_d2">Depth option 2 (ft)</label>
+          <input id="c_d2" type="number" inputmode="numeric" min="1" step="1" value="10"></div>
+        <div class="f"><label for="c_d3">Depth option 3 (ft)</label>
+          <input id="c_d3" type="number" inputmode="numeric" min="1" step="1" value="15"></div>
+        <div class="f"><label for="c_trailer">Trailer holds (yd³)</label>
+          <input id="c_trailer" type="number" inputmode="decimal" min="1" step="0.5" value="11"></div>
+        <div class="f"><label for="c_treehr">Hours per tree</label>
+          <input id="c_treehr" type="number" inputmode="decimal" min="0" step="0.25" value="0.75"></div>
+        <div class="f"><label for="c_loadhr">Load hrs per trip</label>
+          <input id="c_loadhr" type="number" inputmode="decimal" min="0" step="0.1" value="0.6"></div>
+        <div class="f"><label for="c_stackhr">Stack hrs / 100 yd³ left</label>
+          <input id="c_stackhr" type="number" inputmode="decimal" min="0" step="0.1" value="1.2"></div>
+        <div class="f"><label for="c_extreme">Extreme access multiplier</label>
+          <input id="c_extreme" type="number" inputmode="decimal" min="1" step="0.05" value="1.35"></div>
+        <div class="f"><label for="c_t2">Uneven terrain multiplier</label>
+          <input id="c_t2" type="number" inputmode="decimal" min="1" step="0.05" value="1.15"></div>
+        <div class="f"><label for="c_t3">Steep terrain multiplier</label>
+          <input id="c_t3" type="number" inputmode="decimal" min="1" step="0.05" value="1.35"></div>
+      </div>
+    </div>
+
+    <div class="cpane" data-p="dens" hidden>
+      <p class="listhead">How fast you cut it and how much it makes</p>
+      <div id="densRows"></div>
+      <div class="addrow"><button class="act ghost" id="addDens" type="button">Add a density</button></div>
+      <div style="height:14px"></div>
+    </div>
+
+    <div class="cpane" data-p="sites" hidden>
+      <p class="listhead">Where it goes and what they charge</p>
+      <div id="siteRows"></div>
+      <div class="addrow"><button class="act ghost" id="addSite" type="button">Add a dump site</button></div>
+      <div style="height:14px"></div>
+    </div>
+
+    <div class="cpane" data-p="doc" hidden>
+      <div class="fields">
+        <div class="f"><label for="b_company">Company name</label>
+          <input id="b_company" type="text" autocomplete="off"></div>
+        <div class="f"><label for="b_tagline">Tagline</label>
+          <input id="b_tagline" type="text" autocomplete="off"></div>
+        <div class="f"><label for="b_phone">Phone</label>
+          <input id="b_phone" type="text" autocomplete="off"></div>
+        <div class="f"><label for="b_web">Website</label>
+          <input id="b_web" type="text" autocomplete="off"></div>
+        <div class="f"><label for="b_accent">Accent colour</label>
+          <input id="b_accent" type="color" value="#A65E0C"></div>
+        <div class="f"><label for="b_valid">Quote holds (days)</label>
+          <input id="b_valid" type="number" inputmode="numeric" min="1" step="1" value="30"></div>
+        <div class="f wide"><label for="b_scope">Scope sentence</label>
+          <textarea id="b_scope" style="min-height:58px"></textarea>
+          <span class="hint">{len} {depth} {density} get filled in</span></div>
+        <div class="f wide"><label for="b_inc">Always included — one per line</label>
+          <textarea id="b_inc"></textarea></div>
+        <div class="f wide"><label for="b_exc">Never included — one per line</label>
+          <textarea id="b_exc"></textarea></div>
+        <div class="f wide"><label for="b_hall">When you haul all of it</label>
+          <textarea id="b_hall" style="min-height:58px"></textarea></div>
+        <div class="f wide"><label for="b_hpart">When you haul part of it</label>
+          <textarea id="b_hpart" style="min-height:58px"></textarea></div>
+        <div class="f wide"><label for="b_hnone">When you haul none of it</label>
+          <textarea id="b_hnone" style="min-height:58px"></textarea></div>
+        <div class="f wide"><label for="b_hnoneexc">Excluded when you haul none</label>
+          <textarea id="b_hnoneexc" style="min-height:44px"></textarea></div>
+        <div class="f wide"><label for="b_terms">Closing terms</label>
+          <textarea id="b_terms" style="min-height:58px"></textarea></div>
+        <div class="f wide"><label for="b_guarantee">Guarantee line</label>
+          <input id="b_guarantee" type="text" autocomplete="off"></div>
+        <div class="f"><label for="b_covtitle">Breakdown heading</label>
+          <input id="b_covtitle" type="text" autocomplete="off"></div>
+        <div class="f"><label for="b_rowlab">Line 1 label</label>
+          <input id="b_rowlab" type="text" autocomplete="off"></div>
+        <div class="f"><label for="b_rowmat">Line 2 label</label>
+          <input id="b_rowmat" type="text" autocomplete="off"></div>
+        <div class="f"><label for="b_rowdump">Line 3 label</label>
+          <input id="b_rowdump" type="text" autocomplete="off"></div>
+        <div class="f"><label for="b_redlabel">Reduction row label</label>
+          <input id="b_redlabel" type="text" autocomplete="off"></div>
+        <label class="chk"><input id="b_showcov" type="checkbox" checked>
+          Show the price breakdown on the PDF</label>
+        <label class="chk"><input id="b_atcost" type="checkbox" checked>
+          Show dump fees at cost and say so</label>
+        <label class="chk"><input id="b_showguar" type="checkbox" checked>
+          Show the redo-it-free guarantee line</label>
+      </div>
+    </div>
+
+    <div class="save-row">
+      <button class="act" id="save" type="button">Save</button>
+      <button class="act ghost" id="reset" type="button">Reset all</button>
+      <span class="status" id="status"></span>
+    </div>
+  </details>
+
+  
+</section>
+
+<!-- ============ JOBS ============ -->
+<section class="page" data-page="jobs" hidden>
+  <div class="phead">
+    <h2>Jobs</h2>
+    <span class="note">What each one actually made</span>
+  </div>
+  <div class="toolbar">
+    <button class="act" id="newJob" type="button">New job</button>
+    <select id="jobFilter">
+      <option value="all">All jobs</option>
+      <option value="scheduled">Scheduled</option>
+      <option value="done">Done, not invoiced</option>
+      <option value="invoiced">Invoiced</option>
+      <option value="paid">Paid</option>
+    </select>
+    <input id="jobSearch" type="search" placeholder="Search customer or address" autocomplete="off">
+  </div>
+  <div class="tbl">
+    <div class="bar"><span>All jobs</span><span id="jobCount"></span></div>
+    <div class="scroll"><table>
+      <thead><tr>
+        <th>Date</th><th>Customer</th><th>Job</th><th>Status</th>
+        <th class="num">Price</th><th class="num">Costs</th><th class="num">Left for you</th>
+      </tr></thead>
+      <tbody id="jobRows"></tbody>
+    </table></div>
+  </div>
+  <p class="sub">"Left for you" is price minus dump, materials, and loaded crew cost. It is not profit until overheads come out.</p>
+</section>
+
+<!-- ============ INVOICES ============ -->
+<section class="page" data-page="invoices" hidden>
+  <div class="phead">
+    <h2>Invoices</h2>
+    <span class="note" id="invNextNote"></span>
+  </div>
+  <div class="toolbar">
+    <button class="act" id="newInv" type="button">New invoice</button>
+    <select id="invFilter">
+      <option value="all">All</option>
+      <option value="open">Unpaid</option>
+      <option value="overdue">Overdue</option>
+      <option value="paid">Paid</option>
+    </select>
+  </div>
+  <div class="tbl">
+    <div class="bar"><span>All invoices</span><span id="invCount"></span></div>
+    <div class="scroll"><table>
+      <thead><tr>
+        <th>No.</th><th>Customer</th><th>Issued</th><th>Due</th>
+        <th class="num">Total</th><th>Status</th><th></th>
+      </tr></thead>
+      <tbody id="invRows"></tbody>
+    </table></div>
+  </div>
+</section>
+
+<!-- ============ EXPENSES ============ -->
+<section class="page" data-page="expenses" hidden>
+  <div class="phead">
+    <h2>Expenses</h2>
+    <span class="note">Every dollar out, categorised for tax</span>
+  </div>
+  <div class="toolbar">
+    <button class="act" id="newExp" type="button">Add expense</button>
+    <select id="expYear"></select>
+    <select id="expCat"><option value="all">All categories</option></select>
+  </div>
+  <div class="tiles" id="expTiles"></div>
+  <div class="tbl">
+    <div class="bar"><span>Expenses</span><span id="expCount"></span></div>
+    <div class="scroll"><table>
+      <thead><tr>
+        <th>Date</th><th>Vendor</th><th>Category</th><th>Job</th>
+        <th class="num">Amount</th><th>Receipt</th>
+      </tr></thead>
+      <tbody id="expRows"></tbody>
+    </table></div>
+  </div>
+</section>
+
+<!-- ============ CREW ============ -->
+<section class="page" data-page="crew" hidden>
+  <div class="phead">
+    <h2>Crew</h2>
+    <span class="note">Rates, hours, pay and paperwork</span>
+  </div>
+  <div class="toolbar">
+    <button class="act" id="newContractor" type="button">Add contractor</button>
+    <button class="act ghost" id="newEmployee" type="button">Add employee</button>
+    <button class="act ghost" id="logHours" type="button">Log hours</button>
+  </div>
+  <div id="crewCards"></div>
+
+  <div class="tbl">
+    <div class="bar"><span>Hours logged</span><span id="hrCount"></span></div>
+    <div class="scroll"><table>
+      <thead><tr>
+        <th>Date</th><th>Person</th><th>Job</th>
+        <th class="num">Hours</th><th class="num">Wage</th><th class="num">Loaded cost</th><th></th>
+      </tr></thead>
+      <tbody id="hrRows"></tbody>
+    </table></div>
+  </div>
+  <p class="sub">Loaded cost is what the hour actually costs the business. For an
+    <b>employee</b> that is the wage plus employer payroll tax and workers comp, at the rates in
+    Setup. For a <b>contractor</b> it is just the wage, because you owe none of that on them.</p>
+</section>
+
+<!-- ============ BOOKS ============ -->
+<section class="page" data-page="books" hidden>
+  <div class="phead">
+    <h2>Books</h2>
+    <span class="note">What the CPA needs</span>
+  </div>
+  <div class="toolbar">
+    <select id="bookYear"></select>
+    <button class="act" id="expCsv" type="button">Download everything as CSV</button>
+  </div>
+  <div class="tiles" id="bookTiles"></div>
+
+  <div class="tbl">
+    <div class="bar"><span>Income</span></div>
+    <div class="scroll"><table>
+      <thead><tr><th>Month</th><th class="num">Invoiced</th><th class="num">Collected</th><th class="num">Sales tax collected</th></tr></thead>
+      <tbody id="bookIncome"></tbody>
+    </table></div>
+  </div>
+
+  <div class="tbl">
+    <div class="bar"><span>Expenses by category</span></div>
+    <div class="scroll"><table>
+      <thead><tr><th>Category</th><th>Tax line</th><th class="num">Total</th></tr></thead>
+      <tbody id="bookExp"></tbody>
+    </table></div>
+  </div>
+
+  <div class="tbl">
+    <div class="bar"><span>Paid to people</span></div>
+    <div class="scroll"><table>
+      <thead><tr><th>Person</th><th class="num">Wages</th><th class="num">Equipment rent</th><th class="num">Employer tax</th><th>Reported on</th></tr></thead>
+      <tbody id="bookPay"></tbody>
+    </table></div>
+  </div>
+  <div id="bookFlags"></div>
+</section>
+
+<!-- ============ SETUP ============ -->
+<section class="page wrap" data-page="setup" hidden>
+  <div class="phead">
+    <h2>Setup</h2>
+    <span class="note">Business details, tax, payment</span>
+  </div>
+
+  <div class="panel">
+    <div class="bar">The business</div>
+    <div class="fields">
+      <div class="f"><label for="s_legal">Legal name</label><input id="s_legal" type="text" autocomplete="off" placeholder="Swanston Services, LLC"><span class="hint">Exactly as filed, comma and all.</span></div>
+      <div class="f"><label for="s_dba">Name on documents</label><input id="s_dba" type="text" autocomplete="off"></div>
+      <div class="f"><label for="s_ein">EIN</label><input id="s_ein" type="text" autocomplete="off" placeholder="00-0000000"></div>
+      <div class="f"><label for="s_nameControl">IRS name control</label><input id="s_nameControl" type="text" autocomplete="off" maxlength="4" placeholder="4 characters" style="text-transform:uppercase"><span class="hint">The four characters the IRS matches to your EIN. You need it when you e-file 1099-NEC or W-2 forms; the wrong one gets the filing rejected.</span></div>
+      <div class="f"><label for="s_phone">Phone</label><input id="s_phone" type="text" autocomplete="off"></div>
+      <div class="f"><label for="s_email">Email</label><input id="s_email" type="text" autocomplete="off"></div>
+      <div class="f wide"><label for="s_addr">Business address</label><input id="s_addr" type="text" autocomplete="off"></div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="bar">Invoicing</div>
+    <div class="fields">
+      <div class="f"><label for="s_prefix">Invoice prefix</label><input id="s_prefix" type="text" autocomplete="off" placeholder="SS"></div>
+      <!-- The next invoice number is issued by the database, not kept here. A
+           second counter in the settings could disagree with the sequence, and
+           editing it changed nothing, which is worse than not offering it. -->
+      <div class="f"><label for="s_terms">Payment terms (days)</label><input id="s_terms" type="number" min="0" step="1" value="14"></div>
+      <div class="f"><label for="s_tax">Sales tax rate (%)</label><input id="s_tax" type="number" min="0" step="0.125" value="8.25"></div>
+      <label class="chk"><input id="s_taxon" type="checkbox"> Charge sales tax by default</label>
+      <div class="f wide"><label for="s_paylink">Payment link</label><input id="s_paylink" type="text" autocomplete="off" placeholder="https://buy.stripe.com/... — paste once Stripe is set up">
+        <span class="hint">Printed on every invoice with a QR code. Leave blank until the LLC and EIN land.</span></div>
+      <div class="f wide"><label for="s_paynote">How else they can pay</label><input id="s_paynote" type="text" autocomplete="off" placeholder="Zelle to (512) 902-3213 · check to Swanston Services, LLC"></div>
+      <div class="f wide"><label for="s_invterms">Footer on invoices</label><textarea id="s_invterms" style="min-height:54px"></textarea></div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="bar">Payroll burden</div>
+    <div class="fields">
+      <div class="f"><label for="s_fica">FICA (%)</label><input id="s_fica" type="number" min="0" step="0.05" value="7.65"></div>
+      <div class="f"><label for="s_wc">Workers comp (%)</label><input id="s_wc" type="number" min="0" step="0.5" value="11"></div>
+      <div class="f"><label for="s_futa">FUTA (%)</label><input id="s_futa" type="number" min="0" step="0.1" value="0.6"></div>
+      <div class="f"><label for="s_futab">FUTA wage base ($)</label><input id="s_futab" type="number" min="0" step="100" value="7000"></div>
+      <div class="f"><label for="s_suta">Texas SUTA (%)</label><input id="s_suta" type="number" min="0" step="0.1" value="2.7"></div>
+      <div class="f"><label for="s_sutab">SUTA wage base ($)</label><input id="s_sutab" type="number" min="0" step="100" value="9000"></div>
+    </div>
+    <p class="finalnote">Workers comp rates for tree and brush work run roughly 8–15%. Put your actual quoted rate in once the policy is bound.</p>
+  </div>
+
+  <div class="save-row">
+    <button class="act" id="saveSetup" type="button">Save setup</button>
+    <span class="status" id="setupStatus"></span>
+  </div>
+
+  <div class="panel">
+    <div class="bar">People</div>
+    <div id="peopleRows"></div>
+    <p class="finalnote">Everyone starts as crew. Only you can change that, and only
+      here. Turn off public sign-ups in Supabase so nobody can create their own
+      account, then add people yourself.</p>
+  </div>
+
+  <div class="panel">
+    <div class="bar">Crew access</div>
+    <div class="fields">
+      <p class="finalnote" style="grid-column:1/-1">
+        Share this page from the Share menu as <b>Can interact</b> and your crew get a stripped-down
+        version: log hours, submit expenses, find their forms. They cannot see jobs, prices,
+        invoices, expenses, the books, or anyone's pay. What they send lands in your Inbox.
+      </p>
+      <div class="f wide">
+        <button class="act ghost" id="previewCrew" type="button">Show me the crew view</button>
+        <span class="hint">Switches this page to what they see. Reload to come back.</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="bar">Forms the crew need</div>
+    <div id="formRows"></div>
+    <div class="addrow"><button class="act ghost" id="addForm" type="button">Add a form</button></div>
+    <div class="save-row">
+      <button class="act" id="saveForms" type="button">Save forms</button>
+      <span class="status" id="formStatus"></span>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="bar">Expense categories</div>
+    <div id="catRows"></div>
+    <div class="addrow"><button class="act ghost" id="addCat" type="button">Add a category</button></div>
+    <div style="height:14px"></div>
+  </div>
+</section>
+
+<!-- ============ CREW SHELL (shown to non-admin viewers) ============ -->
+<div class="navwrap" id="crewNav" hidden>
+  <nav class="nav" role="tablist" aria-label="Sections">
+    <button type="button" role="tab" data-ctab="chours" aria-selected="true">My hours</button>
+    <button type="button" role="tab" data-ctab="cexp"   aria-selected="false">Expenses</button>
+    <button type="button" role="tab" data-ctab="cjobs"  aria-selected="false">Jobs</button>
+    <button type="button" role="tab" data-ctab="cforms" aria-selected="false">Forms</button>
+    <button type="button" class="signout" id="signOutCrew">Sign out</button>
+  </nav>
+</div>
+
+<section class="page wrap" data-cpage="chours" hidden>
+  <div class="phead">
+    <h2>My hours</h2>
+    <span class="note" id="cWho"></span>
+  </div>
+
+  <div class="panel">
+    <div class="bar">Log a shift</div>
+    <div class="fields">
+      <div class="f"><label for="ch_date">Date</label><input id="ch_date" type="date"></div>
+      <div class="f"><label for="ch_hours">Hours worked</label>
+        <input id="ch_hours" type="number" min="0" step="0.25" inputmode="decimal" placeholder="8"></div>
+      <div class="f wide"><label for="ch_job">Job</label><select id="ch_job"></select></div>
+      <div class="f wide"><label for="ch_note">Anything worth noting</label>
+        <input id="ch_note" type="text" autocomplete="off" placeholder="Finished the back run, two loads to Driftwood"></div>
+    </div>
+    <div class="act-row">
+      <button class="act" id="ch_send" type="button">Submit hours</button>
+      <span class="status" id="ch_status"></span>
+    </div>
+    <p class="finalnote">Submitted hours go to Jack to approve. Log them the day you work — guessing a week later is how hours get lost.</p>
+  </div>
+
+  <div class="tiles" id="cHrTiles"></div>
+
+  <div class="tbl">
+    <div class="bar"><span>What you have sent</span><span id="cHrCount"></span></div>
+    <div class="scroll"><table>
+      <thead><tr><th>Date</th><th>Job</th><th class="num">Hours</th><th>Status</th><th></th></tr></thead>
+      <tbody id="cHrRows"></tbody>
+    </table></div>
+  </div>
+</section>
+
+<section class="page wrap" data-cpage="cexp" hidden>
+  <div class="phead">
+    <h2>My expenses</h2>
+    <span class="note">Things you paid for out of pocket</span>
+  </div>
+
+  <div class="panel">
+    <div class="bar">Submit an expense</div>
+    <div class="fields">
+      <div class="f"><label for="ce_date">Date</label><input id="ce_date" type="date"></div>
+      <div class="f"><label for="ce_amount">Amount ($)</label>
+        <input id="ce_amount" type="number" min="0" step="0.01" inputmode="decimal"></div>
+      <div class="f"><label for="ce_vendor">Paid to</label>
+        <input id="ce_vendor" type="text" autocomplete="off" placeholder="Driftwood Recycling"></div>
+      <div class="f wide"><label for="ce_what">What it was for</label>
+        <input id="ce_what" type="text" autocomplete="off" placeholder="Dump fee, two loads"></div>
+      <div class="f wide"><label for="ce_job">Job</label><select id="ce_job"></select></div>
+      <div class="f wide">
+        <label for="ce_file">Photo of the receipt *</label>
+        <input id="ce_file" type="file" accept="image/*,application/pdf">
+        <span class="hint" id="ce_fileHint">Required. Photograph the receipt before you leave.</span>
+      </div>
+    </div>
+    <div class="act-row">
+      <button class="act" id="ce_send" type="button">Submit expense</button>
+      <span class="status" id="ce_status"></span>
+    </div>
+  </div>
+
+  <div class="tbl">
+    <div class="bar"><span>What you have sent</span><span id="cExCount"></span></div>
+    <div class="scroll"><table>
+      <thead><tr><th>Date</th><th>Paid to</th><th>What for</th><th class="num">Amount</th><th>Status</th></tr></thead>
+      <tbody id="cExRows"></tbody>
+    </table></div>
+  </div>
+</section>
+
+
+<section class="page wrap" data-cpage="cjobs" hidden>
+  <div class="phead">
+    <h2>Jobs</h2>
+    <span class="note">Where it stands, and the photos</span>
+  </div>
+
+  <div class="panel">
+    <div class="bar">Pick the job</div>
+    <div class="fields">
+      <div class="f wide"><label for="cj_job">Job</label><select id="cj_job"></select></div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="bar">Where it stands</div>
+    <div class="fields">
+      <div class="f wide">
+        <div class="seg" id="cj_status" role="group" aria-label="Job status">
+          <button type="button" data-st="scheduled" aria-pressed="false">Not started</button>
+          <button type="button" data-st="started"   aria-pressed="false">On site</button>
+          <button type="button" data-st="done"      aria-pressed="false">Finished</button>
+        </div>
+        <span class="hint">Tap one. Jack sees it straight away.</span>
+      </div>
+    </div>
+    <div class="act-row"><span class="status" id="cj_stStatus"></span></div>
+  </div>
+
+  <div class="panel">
+    <div class="bar">Before and after</div>
+    <div class="ai-body">
+      <p class="finalnote" style="margin:0 0 4px">Shoot the before from one spot and
+        remember where you stood. Shoot the after from that exact spot. A matched pair
+        is worth more than a better camera.</p>
+      <div class="grid2">
+        <div>
+          <label class="chk" style="margin-bottom:6px"><b>BEFORE</b></label>
+          <div class="drop">
+            <input id="cj_before" type="file" accept="image/*" capture="environment"
+                   aria-label="Add a before photo">
+            <span>Add a before photo</span>
+          </div>
+        </div>
+        <div>
+          <label class="chk" style="margin-bottom:6px"><b>AFTER</b></label>
+          <div class="drop">
+            <input id="cj_after" type="file" accept="image/*" capture="environment"
+                   aria-label="Add an after photo">
+            <span>Add an after photo</span>
+          </div>
+        </div>
+      </div>
+      <span class="status" id="cj_phStatus"></span>
+      <div class="thumbs" id="cj_thumbs"></div>
+    </div>
+  </div>
+</section>
+
+<section class="page wrap" data-cpage="cforms" hidden>
+  <div class="phead">
+    <h2>Forms</h2>
+    <span class="note">What you need to fill in and hand back</span>
+  </div>
+  <div id="cFormList"></div>
+  <p class="sub">Fill these in and get them back to Jack before the first job. Hand them over in person rather than emailing them.</p>
+</section>
+
+<!-- ============ OWNER INBOX ============ -->
+<section class="page" data-page="inbox" hidden>
+  <div class="phead">
+    <h2>Inbox</h2>
+    <span class="note">Approve what the crew sent in</span>
+  </div>
+  <div class="tbl">
+    <div class="bar"><span>Waiting on you</span><span id="inboxCount"></span></div>
+    <div class="scroll"><table>
+      <thead><tr>
+        <th>Sent</th><th>Who</th><th>What</th><th>Job</th>
+        <th class="num">Amount</th><th>Receipt</th><th></th>
+      </tr></thead>
+      <tbody id="inboxRows"></tbody>
+    </table></div>
+  </div>
+  <p class="sub">Approving hours writes them into Crew at that person's current rate. Approving an expense writes it into Expenses against the job.</p>
+
+  <div class="tbl">
+    <div class="bar"><span>Already handled</span></div>
+    <div class="scroll"><table>
+      <thead><tr><th>Sent</th><th>Who</th><th>What</th><th class="num">Amount</th><th>Status</th></tr></thead>
+      <tbody id="doneRows"></tbody>
+    </table></div>
+  </div>
+</section>
+
+<!-- ============ DRAWER ============ -->
+<div class="scrim" id="scrim" hidden>
+  <div class="drawer" role="dialog" aria-modal="true" aria-labelledby="dTitle">
+    <div class="dhead"><h3 id="dTitle">Edit</h3><button type="button" id="dClose" aria-label="Close">&times;</button></div>
+    <div class="dbody" id="dBody"></div>
+  </div>
+</div>
+
+</div>
+
+<!-- Vendored and served from this origin, with an integrity hash. A CDN script
+     tag with no integrity is one unverified request away from running arbitrary
+     code with the session token, and a CDN outage takes the app down with it. -->
+<script src="./vendor/supabase.js"
+        integrity="sha384-MysWaKMmOZyrQqt2FOrU02ZNw4jUj7REk7SYPHiyv3rN/EB/ksA6fMXjL/e/Z/Eg"
+        crossorigin="anonymous"></script>
+<!-- jsPDF, for the quote / invoice / job PDFs. The hosted page never loaded
+     this at all, so every "Save PDF" button silently did nothing: the code
+     reads window.jspdf and returns null when it is missing. Vendored and
+     hashed for the same reasons as the database client. -->
+<script src="./vendor/jspdf.umd.min.js"
+        integrity="sha384-JcnsjUPPylna1s1fvi1u12X5qjY5OL56iySh75FdtrwhO/SWXgMjoVqcKyIIWOLk"
+        crossorigin="anonymous"></script>
+<script src="./config.js"></script>
+<script src="./claude-compat.js"></script>
+<script>
+(function(){
+  "use strict";
+  var cfg = window.SWANSTON_CONFIG || {};
+  function fatal(text){
+    var g = document.getElementById("gMsg");
+    g.textContent = text;
+    g.style.color = "var(--flag)";
+    var go = document.getElementById("gGo");
+    if (go) go.disabled = true;
+  }
+  // The old check only asked whether the two fields were PRESENT. The shipped
+  // config.js had truthy placeholders in it, so a deploy that skipped the
+  // config step rendered a working-looking login and then failed with a DNS
+  // error, which points at the wrong problem entirely.
+  if (!cfg.supabaseUrl || !cfg.supabaseAnonKey) {
+    fatal("This site has no config.js yet. Copy config.example.js to " +
+          "config.js and fill in the Supabase URL and anon key.");
+    return;
+  }
+  if (/YOUR-|YOUR_|example\.supabase/i.test(cfg.supabaseUrl + " " + cfg.supabaseAnonKey)) {
+    fatal("config.js still has the placeholder values in it. Put the real " +
+          "Supabase URL and anon key in, from Project Settings \u2192 API.");
+    return;
+  }
+  if (!/^https:\/\/[a-z0-9-]+\.supabase\.(co|in)$/i.test(String(cfg.supabaseUrl).replace(/\/$/, ""))) {
+    fatal("The supabaseUrl in config.js does not look like a project URL. " +
+          "It should read https://something.supabase.co");
+    return;
+  }
+  var sb = window.supabase.createClient(cfg.supabaseUrl, cfg.supabaseAnonKey);
+  var gate = document.getElementById("gate");
+  var wrap = document.getElementById("appWrap");
+  var msg  = document.getElementById("gMsg");
+  var started = false;
+
+  function begin(profile){
+    window.__swanstonBoot(sb, profile);
+    gate.hidden = true;
+    wrap.hidden = false;
+    if (started) return;
+    started = true;
+    var s = document.createElement("script");
+    s.src = "./app.js";
+    s.onload = function(){ window.__swanstonStart(); };
+    document.body.appendChild(s);
+  }
+
+  function afterAuth(session){
+    if (!session) { gate.hidden = false; wrap.hidden = true; return; }
+    sb.from("profiles").select("id,role,full_name,crew_id")
+      .eq("id", session.user.id).maybeSingle()
+      .then(function(r){
+        if (r.error) {
+          // there used to be no rejection path at all: the gate just sat there
+          msg.textContent = "Signed in, but could not read your account: " +
+            (r.error.message || "the database did not answer") + ". Try reloading.";
+          return;
+        }
+        if (!r.data) {
+          msg.textContent = "Signed in, but no profile exists for this account yet. Ask Jack to add you.";
+          return sb.auth.signOut();
+        }
+        begin(r.data);
+      }, function(e){
+        msg.textContent = "Could not reach the database (" +
+          ((e && e.message) || "network error") + "). Check your connection and reload.";
+      });
+  }
+
+  // A session can expire while the page sits open overnight. Queries then come
+  // back 401 and the app used to keep rendering empty tables, which looks
+  // exactly like somebody deleted all the data. Come back to the gate instead.
+  var expired = false;
+  window.__swanstonSessionLost = function(detail){
+    if (expired) return;
+    expired = true;
+    wrap.hidden = true;
+    gate.hidden = false;
+    msg.textContent = "Your session expired" +
+      (detail ? " (" + detail + ")" : "") + ". Sign in again to carry on.";
+    var go = document.getElementById("gGo");
+    if (go) go.disabled = false;
+  };
+
+  document.getElementById("loginForm").addEventListener("submit", function(e){
+    e.preventDefault();
+    msg.textContent = "";
+    var btn = document.getElementById("gGo");
+    btn.disabled = true;
+    sb.auth.signInWithPassword({
+      email: document.getElementById("gEmail").value.trim(),
+      password: document.getElementById("gPass").value
+    }).then(function(r){
+      btn.disabled = false;
+      if (r.error) { msg.textContent = r.error.message; return; }
+      expired = false;
+      afterAuth(r.data.session);
+    }, function(e){
+      // without this the button stayed disabled for good on any network blip,
+      // and the only way out was reloading the page
+      btn.disabled = false;
+      msg.textContent = "Could not reach the sign-in service (" +
+        ((e && e.message) || "network error") + "). Check your connection.";
+    });
+  });
+
+  // A forgotten password used to mean asking the owner to go into the Supabase
+  // dashboard, which is no use to somebody standing on a job site.
+  document.getElementById("gReset").addEventListener("click", function(){
+    var email = document.getElementById("gEmail").value.trim();
+    if (!email) {
+      msg.textContent = "Type your email address first, then tap this again.";
+      document.getElementById("gEmail").focus();
+      return;
+    }
+    msg.textContent = "Sending\u2026";
+    sb.auth.resetPasswordForEmail(email, { redirectTo: location.href })
+      .then(function(r){
+        msg.textContent = (r && r.error)
+          ? ("Could not send it: " + r.error.message)
+          : "Check " + email + " for a link to set a new password.";
+      }, function(e){
+        msg.textContent = "Could not send it (" +
+          ((e && e.message) || "network error") + ").";
+      });
+  });
+
+  sb.auth.getSession().then(function(r){ afterAuth(r.data.session); });
+  sb.auth.onAuthStateChange(function(ev, session){
+    if (ev === "SIGNED_OUT") { location.reload(); }
+    else if (session && !started) { afterAuth(session); }
+  });
+
+  window.swanstonSignOut = function(){ sb.auth.signOut(); };
+})();
+</script>
+</body>
+</html>
