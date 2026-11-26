@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Swanston Services &mdash; Pay Plan</title>
+<meta name="robots" content="noindex,nofollow">
+<meta name="description" content="Pay plan: hourly rate, trailer rental, bonus and the path to Director of Field Operations.">
+<meta property="og:title" content="Swanston Services &mdash; Pay Plan">
+<meta property="og:description" content="Hourly rate, trailer rental and what comes next.">
+<meta property="og:type" content="website">
+<style>
+  html,body{margin:0;padding:0}
+  :root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+  img{max-width:100%}
+  [hidden]{display:none!important}
+</style>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Big+Shoulders+Display:wght@700;800;900&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+  /* One page, read on a phone, by someone deciding whether to take a job.
+     Big numbers up front, short sentences, nothing hidden in small print. */
+  :root{
+    --paper:#f7f5f0; --surface:#ffffff; --sunk:#efece4;
+    --line:#d9d4c7; --line-soft:#e6e2d7;
+    --ink:#171a16; --text:#33382f; --dim:#6d7265;
+    --blaze:#c2410c; --brush:#3f6212;
+    --mono:"IBM Plex Mono",ui-monospace,monospace;
+    --body:"Barlow",system-ui,sans-serif;
+    --display:"Big Shoulders Display","Barlow Condensed",sans-serif;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --paper:#14160f; --surface:#1c1f17; --sunk:#232719;
+      --line:#3a3f2e; --line-soft:#2c3122;
+      --ink:#f2f0e6; --text:#d3d2c4; --dim:#95998a;
+      --blaze:#fb923c; --brush:#a3c25c; color-scheme:dark;
+    }
+  }
+  :root[data-theme="dark"]{
+    --paper:#14160f; --surface:#1c1f17; --sunk:#232719;
+    --line:#3a3f2e; --line-soft:#2c3122;
+    --ink:#f2f0e6; --text:#d3d2c4; --dim:#95998a;
+    --blaze:#fb923c; --brush:#a3c25c; color-scheme:dark;
+  }
+  *{box-sizing:border-box}
+  body{background:var(--paper);color:var(--text);font-family:var(--body);
+    font-size:17px;line-height:1.6;margin:0}
+  .wrap{max-width:660px;margin:0 auto;min-width:0;
+    padding-left:max(16px,env(safe-area-inset-left,0px));
+    padding-right:max(16px,env(safe-area-inset-right,0px));
+    padding-block:0 72px}
+  h1,h2{font-family:var(--display);font-weight:800;text-transform:uppercase;
+    color:var(--ink);margin:0;line-height:.95;text-wrap:balance}
+  h1{font-size:clamp(42px,11vw,76px)}
+  h2{font-size:clamp(22px,5vw,30px);margin-top:46px}
+  p{margin:.7em 0}
+  .kicker{font-family:var(--mono);font-size:10px;letter-spacing:.22em;
+    text-transform:uppercase;color:var(--dim)}
+  .hero{margin-top:calc(-1 * env(safe-area-inset-top,0px));
+    padding-top:calc(env(safe-area-inset-top,0px) + 40px);
+    border-bottom:3px solid var(--blaze);padding-bottom:24px}
+  .lede{font-size:19px;max-width:54ch}
+
+  .pay{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);
+    border:1px solid var(--line);margin:26px 0}
+  .pay div{background:var(--surface);padding:18px 20px;min-width:0}
+  .pay .k{font-family:var(--mono);font-size:10px;letter-spacing:.14em;
+    text-transform:uppercase;color:var(--dim)}
+  .pay .v{font-family:var(--display);font-weight:900;font-size:clamp(38px,9vw,52px);
+    line-height:1;color:var(--blaze);margin-top:6px;font-variant-numeric:tabular-nums}
+  .pay .s{font-size:14px;color:var(--dim);margin-top:6px}
+  @media (max-width:520px){.pay{grid-template-columns:1fr}}
+
+  .tblwrap{overflow-x:auto;border:1px solid var(--line);margin:18px 0;max-width:100%}
+  table{width:100%;border-collapse:collapse;font-size:15px;background:var(--surface)}
+  th{font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;
+    color:var(--dim);text-align:left;padding:10px 12px;border-bottom:1px solid var(--line);
+    font-weight:400;white-space:nowrap}
+  td{padding:10px 12px;border-bottom:1px dotted var(--line-soft)}
+  tr:last-child td{border-bottom:0}
+  td.num,th.num{text-align:right;font-family:var(--mono);
+    font-variant-numeric:tabular-nums;white-space:nowrap}
+  tr.tot td{border-top:1px solid var(--line);font-weight:700;color:var(--ink)}
+
+  .straight{border:1px solid var(--line);border-left:5px solid var(--blaze);
+    background:var(--surface);padding:18px 20px;margin:22px 0;min-width:0}
+  .straight b{color:var(--ink)}
+  ul{padding-left:1.2em} li{margin:.4em 0}
+  .sign{border:1px solid var(--line);background:var(--sunk);padding:16px 18px;margin:18px 0}
+  .sign .row{display:flex;gap:12px;align-items:baseline;padding:7px 0;
+    border-bottom:1px dotted var(--line-soft);flex-wrap:wrap}
+  .sign .row:last-child{border-bottom:0}
+  .sign .nm{font-weight:600;color:var(--ink);min-width:160px}
+  .sign .ds{font-size:14.5px;color:var(--dim);flex:1;min-width:0}
+  hr{border:0;border-top:1px solid var(--line);margin:40px 0}
+</style>
+
+</head>
+<body>
+<div class="wrap">
+
+<header class="hero">
+  <div class="kicker">Swanston Services, LLC &middot; November 2026</div>
+  <h1>Jacob<br>Pay Plan</h1>
+  <p class="lede">Putting this in writing so you can look at it properly instead of
+  deciding on a job site. Take your time with it.</p>
+</header>
+
+<h2>The money</h2>
+
+<div class="pay">
+  <div>
+    <div class="k">Your hourly rate</div>
+    <div class="v">$40</div>
+    <div class="s">Every hour you work, whether the job goes quick or runs long.</div>
+  </div>
+  <div>
+    <div class="k">Your trailer</div>
+    <div class="v">$75<span style="font-size:.45em"> /day</span></div>
+    <div class="s">Rented from you, on top of your wage. Paid any day it comes out.</div>
+  </div>
+</div>
+
+<p>For reference: an experienced foreman running crews on this kind of work around Austin
+generally lands somewhere in the high twenties to low thirties an hour. You're starting at
+<b>$40</b> — roughly a third above that, before the trailer and before any bonus.</p>
+
+<div class="tblwrap"><table>
+<thead><tr><th>A normal 8-hour day</th><th class="num">You get</th></tr></thead>
+<tbody>
+<tr><td>8 hours at $40</td><td class="num">$320</td></tr>
+<tr><td>Trailer</td><td class="num">$75</td></tr>
+<tr class="tot"><td>Per day</td><td class="num">$395</td></tr>
+</tbody>
+</table></div>
+
+<div class="tblwrap"><table>
+<thead><tr><th>Over a year</th><th class="num">Days</th><th class="num">Wages</th><th class="num">Trailer</th><th class="num">Total</th></tr></thead>
+<tbody>
+<tr><td>3 days a week</td><td class="num">147</td><td class="num">$47,040</td><td class="num">$11,025</td><td class="num">$58,065</td></tr>
+<tr><td>4 days a week</td><td class="num">196</td><td class="num">$62,720</td><td class="num">$14,700</td><td class="num">$77,420</td></tr>
+<tr><td>5 days a week</td><td class="num">245</td><td class="num">$78,400</td><td class="num">$18,375</td><td class="num">$96,775</td></tr>
+</tbody>
+</table></div>
+
+<p>That's a 49-week year and 8-hour days, so it allows for weather, holidays and the
+slow stretch after Christmas. Figures are before tax. At this point I can't guarantee a
+certain number of days or hours.</p>
+
+<h2>Bonus on top</h2>
+
+<p>When a job gets done well and gets done efficiently, there's a bonus on it. It scales
+with the job — the bigger the job, the bigger the bonus.</p>
+
+<p>I'm not putting a number on it here, because it depends on how the job actually goes.
+What I will tell you is what earns it: the work is clean, the customer is happy enough to
+put our name in front of a neighbor, and we're off the property without burning the whole
+day. That part is mostly in your hands, which is the point of it.</p>
+
+<h2>What changes</h2>
+
+<div class="straight">
+<p style="margin-top:0"><b>The shape of your pay changes more than anything else.</b>
+Right now you're riding on how well I price a job. The good ones are good — a $2,000 job
+we knock out in two days paid you $1,400. But the ones that run long, the ones I
+underprice and the days that go sideways come out of your end too.</p>
+<p>Hourly evens that out. That same two-day job comes to $790, so the quick well-priced
+ones won't pay like they used to. In exchange, a job that takes four days instead of two
+pays you for four days, and one I price badly stops being your problem.</p>
+<p style="margin-bottom:0">You get paid for every hour you work, on a schedule, whether
+or not the job went to plan. Where it lands over a year comes down to how much work I can
+keep in front of you — which is the thing I'm restructuring to fix.</p>
+</div>
+
+<p>Why I'm changing it: if I keep going at 70/30, that 30% is what has to cover the dump
+fees, the fuel, the insurance, the business filings and the equipment, plus the time I
+spend quoting jobs and chasing customers. There's nothing left in it to put a second crew
+on the road. And if I can't do that, neither of us gets anywhere.</p>
+
+<h2>What you stop carrying</h2>
+
+<ul>
+<li><b>Self-employment tax.</b> Right now you owe the full 15.3% yourself. As an employee
+you pay half and I pay the other half. On a four-day week that's roughly <b>$4,000 a year
+in self-employment tax you're no longer paying</b> — your own deductions still affect what
+you end up owing, so treat it as the direction, not an exact figure.</li>
+<li><b>No more quarterly estimated payments.</b> Tax comes out of each check.</li>
+<li><b>No liability.</b> If something goes wrong on a property, that's on the business,
+not on you.</li>
+</ul>
+
+<h2>The trailer</h2>
+
+<p>I want this kept separate from your wage, on purpose. It's your property and you
+should be paid for it as your property, not have it buried in an hourly rate.</p>
+<p>We'll write one page covering the rate, who handles maintenance, and what happens if
+it gets damaged on a job. It stays yours. If you ever want out of the arrangement, you
+take your trailer and the job doesn't change.</p>
+
+<h2>Where this goes</h2>
+
+<p>This rate is the starting point, not the plan.</p>
+
+<div class="straight">
+<p style="margin-top:0"><b>As soon as I have a real crew — two to five people working jobs
+in my truck with my equipment — you move straight to Director of Field Operations, and
+the pay moves up
+significantly with it.</b></p>
+<p style="margin-bottom:0">That isn't a someday thing I'm dangling to get you to sign.
+It's the entire reason I'm changing how we do this. I can't build toward a crew on the
+old arrangement, and when the crew exists I need someone running it who already knows
+how we work.</p>
+</div>
+
+<p>At that point you're running crews rather than just working them. I'll put the number
+in writing when I can stand behind it — but the trigger is the crew existing, not a date
+and not how I'm feeling about it that month.</p>
+
+<h2>What you'd need to do</h2>
+
+<div class="sign">
+  <div class="row"><span class="nm">Form I-9</span>
+    <span class="ds">Bring ID — a passport, or a driver's license plus a social security card. Day one.</span></div>
+  <div class="row"><span class="nm">Form W-4</span>
+    <span class="ds">Sets how much tax comes out. Takes five minutes.</span></div>
+  <div class="row"><span class="nm">Bank details</span>
+    <span class="ds">A voided check, for direct deposit. Hand it to me, don't text it.</span></div>
+  <div class="row"><span class="nm">Trailer agreement</span>
+    <span class="ds">The one page about the $75. We'll go through it together.</span></div>
+</div>
+
+<p>We've got a job this weekend. If this looks good to you, we'll get these signed before
+we start.
+Ask me anything first, including anything that makes you hesitate.</p>
+
+<hr>
+<p class="kicker">Swanston Services, LLC &middot; (512) 902-3213</p>
+</div>
+</body>
+</html>
